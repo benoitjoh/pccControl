@@ -1,0 +1,7 @@
+PCCtrl	KEYWORD1
+initialize	KEYWORD2
+set_pcc	KEYWORD2
+getNetFrequency KEYWORD2
+isrZeroCallback	KEYWORD2
+isrOciCallback	KEYWORD2
+
