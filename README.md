@@ -15,7 +15,14 @@ The modules uses
 
 
 ## /!\ WARNING
-Dealing with high voltage is dangerous. Be careful and know what you can do and what you better leave.
+| ++Dealing with high voltage is dangerous. Be careful and know what you can do and what you better leave.++ |
+|--------|--------|
+
+
+## Installation ##
+
+Just copy the folder PhaseCutCtrl with c++ sources in library folder from ArduinoIDE
+
 
 ## Principle ##
 
@@ -39,7 +46,10 @@ Now, depending from the power value, a delay is calculated and set to outputComp
 
 ### Initialization
 The class is per initialized in the cpp file during compilation. This is neccessary because the interrupt method needs to know which method of the class it must call.
-So the initializt() method has to be called in setup() to pass parameters
+So the initializt() method has to be called in setup() to pass parameters.
+
+The last Parameter PCC_POWER_MAX ist typically 999 so you have 1000 steps, but can be any value you like. 
+
 
 ```c++
 #include <PhaseCutCtrl.h>
@@ -63,7 +73,7 @@ void setup()
 To set the power value, call set_pcc(power). run it as seldom as possible to reduce timeconsumption for the float calculations.
 In the example, a function returns true, when it changed the targetpower:
 ```c++
-//  use something like "
+//  use something like
 
 if (someFunctionThatDefinespower())
 {
