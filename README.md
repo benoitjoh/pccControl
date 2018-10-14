@@ -3,9 +3,6 @@
 Library to make usage of a phase cut controller with a ATMEGA easier.
 attached you find a circuit with a layout example for a small board for the unit.
 
-**Content**
-
-[TOC]
 
 The modules uses
 * timer1 with prescaler 8 and needs the OCR1A interrupt.
@@ -15,9 +12,10 @@ The modules uses
 
 
 ## /!\ WARNING
-| ++Dealing with high voltage is dangerous. Be careful and know what you can do and what you better leave.++ |
-|--------|--------|
 
+```
+/!\ Dealing with high voltage is dangerous. Be careful and know what you can do and what you better leave. /!\
+```
 
 ## Installation ##
 
@@ -35,10 +33,6 @@ In the picture the idea is shown. The trick is to detect the start point of the 
 The signal triggers an external interrupt which sets the timer1 to zero.
 Now, depending from the power value, a delay is calculated and set to outputCompareRegister1a (OCR1A). The interrupt triggers a short pulse on the output pin (blue spice in the picture) and fires the triac (red curve) via the MOC3022 optocoupler. The triac is on until the AC voltage returns to zero point, and shuts of in that moment. So the load gets only the energy of grey part under the graph.
 (one mistake in the picture is, that the second wave should be negative, because its alternating current of course..)
-
-## Circuit schema ##
-
-![circuit](https://bitbucket.org/benoitjoh/atmwm/downloads/pcc_circuit.png)
 
 
 
@@ -94,6 +88,6 @@ calculates the time for one event and returns transfored to Hertz.
 If the interupt is never called (e.g. if there is no AC supply, 0.0 is returned)
 (It needs about 1k program memory extra.)
 
-(c) [Johannes Benoit 2016](mailto:jbenoit@t-online.de)
+(c) [Johannes Benoit 2018](mailto:jbenoit@t-online.de)
 
 
