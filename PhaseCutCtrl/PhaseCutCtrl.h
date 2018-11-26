@@ -51,32 +51,31 @@ class PhaseCutCtrl
 {
     public:
         // methods
-        void initialize(byte in_pin, byte out_pin, int max_pwr);
+        void initialize(byte signal_pin, byte output_pin, int max_power);
         void set_pcc(int power);
-        float getNetFrequency();
+        unsigned int getNetFrequency();
         bool netIsAllive();
 
         void isrZeroCallback();
         void isrOciCallback();
 
-        // parameters
-        unsigned int ocrDelta;
+     private:
+       // parameters
         bool pcc_is_on;
         byte signal_pin;
         byte output_pin;
         int max_power;
+        
         // variables for frequencymeasurement
-        bool use_net_freq;
         unsigned long netFreqMicros;
         unsigned long netFreqMicrosOld;
         unsigned long lastAcZeroMillis;
 
-        float hz_factor;
+        long hz_factor;
         int netFreqCnt;
         int netFreqCntLast;
 
     protected:
-    private:
 
 
 };
