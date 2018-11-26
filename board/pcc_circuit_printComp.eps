@@ -1,0 +1,197 @@
+%!PS-Adobe-3.0 EPSF-3.0
+%%Title: EAGLE Drawing /home/benoitj/Documents/computer/arduino/githubPublic/phaseCutCtrl/board/pcc_circuit_example.brd
+%%Creator: EAGLE
+%%Pages: 1
+%%BoundingBox: 0 0 158 87
+%%EndComments
+
+% Coordinate transfer:
+
+/EU { 254 div 0.072 mul } def
+/inch { 72 mul } def
+
+% Linestyle:
+
+1 setlinecap
+1 setlinejoin
+
+% Drawing functions:
+
+/l {  % draw a line
+   /lw exch def
+   /y2 exch def
+   /x2 exch def
+   /y1 exch def
+   /x1 exch def
+   newpath
+   x1 EU y1 EU moveto
+   x2 EU y2 EU lineto
+   lw EU setlinewidth
+   stroke
+   } def
+
+/h {  % draw a hole
+   /d  exch def
+   /y  exch def
+   /x  exch def
+   d 0 gt {
+     newpath
+     x EU y EU d 2 div EU 0 360 arc
+     currentgray dup
+     1 exch sub setgray
+     fill
+     setgray
+     } if
+   } def
+
+/b {  % draw a bar
+   /an exch def
+   /y2 exch def
+   /x2 exch def
+   /y1 exch def
+   /x1 exch def
+   /w2 x2 x1 sub 2 div EU def
+   /h2 y2 y1 sub 2 div EU def
+   gsave
+   x1 x2 add 2 div EU y1 y2 add 2 div EU translate
+   an rotate
+   newpath
+   w2     h2     moveto
+   w2 neg h2     lineto
+   w2 neg h2 neg lineto
+   w2     h2 neg lineto
+   closepath
+   fill
+   grestore
+   } def
+
+/c {  % draw a circle
+   /lw exch def
+   /rd exch def
+   /y  exch def
+   /x  exch def
+   newpath
+   lw EU setlinewidth
+   x EU y EU rd EU 0 360 arc
+   stroke
+   } def
+
+/a {  % draw an arc
+   /lc exch def
+   /ae exch def
+   /as exch def
+   /lw exch def
+   /rd exch def
+   /y  exch def
+   /x  exch def
+   lw rd 2 mul gt {
+     /rd rd lw 2 div add 2 div def
+     /lw rd 2 mul def
+     } if
+   currentlinecap currentlinejoin
+   lc setlinecap 0 setlinejoin
+   newpath
+   lw EU setlinewidth
+   x EU y EU rd EU as ae arc
+   stroke
+   setlinejoin setlinecap
+   } def
+
+/p {  % draw a pie
+   /d exch def
+   /y exch def
+   /x exch def
+   newpath
+   x EU y EU d 2 div EU 0 360 arc
+   fill
+   } def
+
+/edge { 0.20710678119 mul } def
+
+/o {  % draw an octagon
+   /an exch def
+   /dy exch def
+   /dx exch def
+   /y  exch def
+   /x  exch def
+   gsave
+   x EU y EU translate
+   an dx dy lt { 90 add /dx dy /dy dx def def } if rotate
+   newpath
+      0 dx 2 div sub EU                    0 dy edge  add EU moveto
+      0 dx dy sub 2 div sub dy edge sub EU 0 dy 2 div add EU lineto
+      0 dx dy sub 2 div add dy edge add EU 0 dy 2 div add EU lineto
+      0 dx 2 div add EU                    0 dy edge  add EU lineto
+      0 dx 2 div add EU                    0 dy edge  sub EU lineto
+      0 dx dy sub 2 div add dy edge add EU 0 dy 2 div sub EU lineto
+      0 dx dy sub 2 div sub dy edge sub EU 0 dy 2 div sub EU lineto
+      0 dx 2 div sub EU                    0 dy edge  sub EU lineto
+   closepath
+   fill
+   grestore
+   } def
+
+31327 3810 551827 3810 2540 l
+551827 3810 551827 295150 2540 l
+551827 295150 31327 295150 2540 l
+31327 295150 31327 3810 2540 l
+178647 218440 15240 p
+178647 269240 15240 15240 0.0 o
+229447 269240 15240 15240 0.0 o
+229447 218440 15240 15240 0.0 o
+178647 137160 21590 21590 0.0 o
+328507 137160 21590 21590 0.0 o
+501227 204470 13208 13208 0.0 o
+501227 153670 13208 13208 0.0 o
+317077 270510 303869 270510 13208 l
+317077 245110 303869 245110 13208 l
+393277 245110 406485 245110 13208 l
+393277 270510 406485 270510 13208 l
+317077 219710 303869 219710 13208 l
+393277 219710 406485 219710 13208 l
+442807 124460 456015 124460 13208 l
+442807 149860 456015 149860 13208 l
+366607 149860 353399 149860 13208 l
+366607 124460 353399 124460 13208 l
+442807 175260 456015 175260 13208 l
+366607 175260 353399 175260 13208 l
+482177 226314 482177 213106 13208 l
+431377 226314 431377 213106 13208 l
+456777 226314 456777 213106 13208 l
+275167 218440 13208 13208 0.0 o
+275167 193040 13208 13208 0.0 o
+508847 250190 13208 13208 180.0 o
+483447 250190 13208 13208 180.0 o
+281517 270510 13208 13208 0.0 o
+281517 245110 13208 13208 0.0 o
+325967 177800 13208 13208 180.0 o
+300567 177800 13208 13208 180.0 o
+240877 179070 13208 13208 180.0 o
+215477 179070 13208 13208 180.0 o
+482177 128270 13208 13208 0.0 o
+507577 128270 13208 13208 0.0 o
+430107 269240 13208 13208 0.0 o
+455507 269240 13208 13208 0.0 o
+292947 55880 292947 40640 15240 l
+267547 55880 267547 40640 15240 l
+242147 55880 242147 40640 15240 l
+103463 36830 83651 36830 19812 l
+103463 86614 83651 86614 19812 l
+103463 136906 83651 136906 19812 l
+103463 186690 83651 186690 19812 l
+98637 257810 14000 0 c
+431377 63500 14224 p
+431377 38100 14224 14224 0.0 o
+456777 63500 14224 14224 0.0 o
+456777 38100 14224 14224 0.0 o
+482177 63500 14224 14224 0.0 o
+482177 38100 14224 14224 0.0 o
+507577 62230 16002 16002 0.0 o
+215477 179070 149691 179070 4064 l
+149691 179070 93557 136906 4064 l
+267547 48260 267547 76200 25400 l
+267547 76200 252307 91440 25400 l
+252307 91440 177377 91440 25400 l
+177377 91440 132927 135890 25400 l
+132927 135890 103463 135890 25400 l
+103463 135890 93557 136906 19304 l
