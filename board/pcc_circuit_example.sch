@@ -2155,6 +2155,37 @@ type 0204, grid 7.5 mm</description>
 <rectangle x1="2.54" y1="-0.2794" x2="2.921" y2="0.2286" layer="21"/>
 <rectangle x1="-2.921" y1="-0.254" x2="-2.54" y2="0.254" layer="21"/>
 </package>
+<package name="FE03-2RAW">
+<wire x1="-3.175" y1="3.048" x2="3.429" y2="3.048" width="0.1524" layer="21"/>
+<wire x1="3.81" y1="-2.413" x2="3.81" y2="2.413" width="0.1524" layer="21"/>
+<wire x1="-3.81" y1="-2.413" x2="-3.81" y2="2.413" width="0.1524" layer="21"/>
+<wire x1="-3.175" y1="-3.048" x2="3.429" y2="-3.048" width="0.1524" layer="21"/>
+<wire x1="-3.81" y1="2.413" x2="-3.175" y2="3.048" width="0.1524" layer="21" curve="-90"/>
+<wire x1="3.429" y1="3.048" x2="3.81" y2="2.413" width="0.1524" layer="21" curve="-90"/>
+<wire x1="3.429" y1="-3.048" x2="3.81" y2="-2.413" width="0.1524" layer="21" curve="90"/>
+<wire x1="-3.81" y1="-2.413" x2="-3.175" y2="-3.048" width="0.1524" layer="21" curve="90"/>
+<circle x="-2.54" y="-1.27" radius="0.127" width="0.4064" layer="51"/>
+<circle x="-2.54" y="1.27" radius="0.127" width="0.4064" layer="51"/>
+<circle x="0" y="-1.27" radius="0.127" width="0.4064" layer="51"/>
+<circle x="0" y="1.27" radius="0.127" width="0.4064" layer="51"/>
+<circle x="2.54" y="-1.27" radius="0.127" width="0.4064" layer="51"/>
+<circle x="2.54" y="1.27" radius="0.127" width="0.4064" layer="51"/>
+<circle x="-2.54" y="-1.27" radius="0.889" width="0.1524" layer="51"/>
+<circle x="-2.54" y="1.27" radius="0.889" width="0.1524" layer="51"/>
+<circle x="0" y="1.27" radius="0.889" width="0.1524" layer="51"/>
+<circle x="2.54" y="1.27" radius="0.889" width="0.1524" layer="51"/>
+<circle x="0" y="-1.27" radius="0.889" width="0.1524" layer="51"/>
+<circle x="2.54" y="-1.27" radius="0.889" width="0.1524" layer="51"/>
+<pad name="1" x="-2.54" y="1.27" drill="0.9144"/>
+<pad name="2" x="-2.54" y="-1.27" drill="0.9144" shape="octagon"/>
+<pad name="3" x="0" y="1.27" drill="0.9144" shape="octagon"/>
+<pad name="4" x="0" y="-1.27" drill="0.9144" shape="octagon"/>
+<pad name="5" x="2.54" y="1.27" drill="0.9144" shape="octagon"/>
+<pad name="6" x="2.54" y="-1.27" drill="0.9144" shape="octagon"/>
+<text x="0" y="3.429" size="1.27" layer="25" font="vector" ratio="10">&gt;NAME</text>
+<text x="-5.161" y="2.159" size="1.27" layer="21" font="vector" ratio="10">1</text>
+<text x="-3.81" y="-4.699" size="1.27" layer="27" font="vector" ratio="10">&gt;VALUE</text>
+</package>
 </packages>
 <symbols>
 <symbol name="FE03-2">
@@ -2263,6 +2294,19 @@ type 0204, grid 7.5 mm</description>
 </gates>
 <devices>
 <device name="" package="FE03-2">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2"/>
+<connect gate="G$1" pin="3" pad="3"/>
+<connect gate="G$1" pin="4" pad="4"/>
+<connect gate="G$1" pin="5" pad="5"/>
+<connect gate="G$1" pin="6" pad="6"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="FE03-2RAW" package="FE03-2RAW">
 <connects>
 <connect gate="G$1" pin="1" pad="1"/>
 <connect gate="G$1" pin="2" pad="2"/>
