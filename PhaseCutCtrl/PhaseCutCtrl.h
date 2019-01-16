@@ -10,18 +10,18 @@
 // zero point
 // The delay is calculated from the value passed to set_pcc(speed)
 //
-// The param speed can be anything between 0 (off) and PCC_POWER_MAX (100%)
+// The param speed can be anything between 0 (off) and 2048 (100%)
 //
 // Usage:
 //
 //   #include <PhaseCutCtrl.h>
 //   void setup()
 //   {
-//   PCCtrl.initialize(PIN_IN_ACZERO_SIGNAL, PIN_PCC_OUT_A, PCC_POWER_MAX);
+//   PCCtrl.initialize(PIN_IN_ACZERO_SIGNAL, PIN_PCC_OUT_A);
 //   }
-//                       |                     |              |      
-//                       |                     |              |
-//                       |                     |              \--- int that represents 100% power
+//                       |                     |
+//                       |                     |
+//                       |                     |
 //                       |                     \--- output pin
 //                       \--- input pin
 //
@@ -51,7 +51,7 @@ class PhaseCutCtrl
 {
     public:
         // methods
-        void initialize(byte signal_pin, byte output_pin, int max_power);
+        void initialize(byte signal_pin, byte output_pin);
         void set_pcc(int power);
         unsigned int getNetFrequency();
         bool netIsAllive();
@@ -64,8 +64,7 @@ class PhaseCutCtrl
         bool pcc_is_on;
         byte signal_pin;
         byte output_pin;
-        int max_power;
-        
+
         // variables for frequencymeasurement
         unsigned long netFreqMicros;
         unsigned long netFreqMicrosOld;

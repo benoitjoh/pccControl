@@ -1,6 +1,12 @@
 #include "PhaseCutCtrl.h"
 #include "Arduino.h"
 
+#define DEBUG_PCC 1
+
+#define SAMPLES_AMOUNT 20
+#define MAX_POWER 2048
+
+
 PhaseCutCtrl PCCtrl; // pre-instatiate the class here
 
 void ISR_acIsZero()
@@ -16,17 +22,57 @@ ISR(TIMER1_COMPA_vect)
     PCCtrl.isrOciCallback();
 }
 
+// Mapping function (costs about 8 mySeconds)
+
+// <START OF GENERATED CODE> by map_generator.py --- 2019-01-16 14:14:28 -----
+// Interpolation for 8 steps between x=0 and x=2048 with 256 x-values between each step
+// Delta values are shiftet by 10  bits left for better accuracacy.
+// ---------------------------------------------------------------------------
+
+// arraydefinition for point_array ...
+int point_array[8] = {17300, 14602, 12314, 10786, 10250, 9713, 8185, 5897};
+
+// arraydefinition for delta_array ...
+int delta_array[8] = {10791, 9148, 6109, 2144, 2146, 6111, 9148, 10787};
+// ---------------------------------------------------------------------------
 
 
-#define SAMPLES_AMOUNT 20
+int xPartMask = (1 << 8) -1;
 
-void PhaseCutCtrl::initialize(byte signal_pin, byte output_pin, int max_power)
+
+int mapFunction(int x)
+{
+#ifdef DEBUG_PCC
+    PORTB &= ~B00100000; //set pin13 to LOW for timemeasurement
+#endif // DEBUG_PCC
+    byte segment = x >> 8;
+    int x_part = x & xPartMask;
+    int delta = ((long)delta_array[segment] * x_part)  >> 10;
+    int y = point_array[segment] - delta;
+
+#ifdef DEBUG_PCC
+    PORTB |=  B00100000; //set pin13 back to HIGH for timemeasurement
+    Serial.print("PCC:\t" + String(x)
+        +"\t"+ String(segment)
+        +"\t"+ String(x_part)
+        +"\t"+ String(delta)
+        +"\t" + String(y) + "\n");
+#endif // DEBUG_PCC
+
+    return y;
+}
+
+
+
+// <END OF GENERATED CODE> ----------------------------------------------//
+
+
+void PhaseCutCtrl::initialize(byte signal_pin, byte output_pin)
 {
     this->output_pin = output_pin;
     this->signal_pin = signal_pin;
     hz_factor = 50000000 * SAMPLES_AMOUNT;
     netFreqCnt = 0;
-    this->max_power = max_power;
 
     noInterrupts();
     pinMode(signal_pin, INPUT);
@@ -45,8 +91,9 @@ void PhaseCutCtrl::initialize(byte signal_pin, byte output_pin, int max_power)
 
     interrupts();             // activate all interrupts
     OCR1A = 0;
-
-    //pinMode(13, OUTPUT); // can use pin 13 for timing mesurement with an osziloscope
+#ifdef DEBUG_PCC
+    pinMode(13, OUTPUT); // can use pin 13 for timing mesurement with an osziloscope
+#endif // DEBUG_SPEEDCONTROL
 
 }
 
@@ -82,29 +129,21 @@ void PhaseCutCtrl::isrOciCallback()
 
 void PhaseCutCtrl::set_pcc(int pccPower)
 {
-    // this calculates the delta for OCR1A register from timer interrupt
-    // the routine is called from the speedController
-
-    // call this method only if pccPower had changed! Because some float
-    // operations are included...
-    //    use something like "if (adjustPcmPower()) {PCCtrl.set_pcc(pcmPower);} ..."
-    
-    //PORTB &= ~B00100000; //set pin13 to LOW for timemeasurement
-    float p = 0.0;
+    // this calculates  and sets the delta for OCR1A register from timer interrupt
 
     if (pccPower == 0)
     {
         // switched off
         pcc_is_on = false;
-        digitalWrite(output_pin, 0); // pin permanently LOW
+        digitalWrite(output_pin, LOW); // pin permanently LOW
     }
     else
     {
-        if (pccPower == max_power)
+        if (pccPower == MAX_POWER)
         {
             // swiched on to 100% so no interrupt control but straight on
             pcc_is_on = false;
-            digitalWrite(output_pin, 1); // pin permanently HIGH
+            digitalWrite(output_pin, HIGH); // pin permanently HIGH
         }
         else
         {
@@ -114,15 +153,18 @@ void PhaseCutCtrl::set_pcc(int pccPower)
         }
     }
 
-    // formula for calculating the time shift. it is a function that 
-    // is relative easy to calculate and cares for a near linear relation 
-    // between pccPower and resulting load power
-    
-     p = pccPower / (float)max_power;
-    
+#ifdef DEBUG_PCC
+    PORTB &= ~B00100000; //set pin13 to LOW for timemeasurement
+#endif // DEBUG_PCC
+
     // set the Output Compare Register 1 A
-    OCR1A = int(-564 * p * p * p + 846 * p * p - 423 * p + 173) * 100;
-    //PORTB |=  B00100000; //set pin13 back to HIGH for timemeasurement
+    int oc_value = mapFunction(pccPower);
+    OCR1A = oc_value;
+
+#ifdef DEBUG_PCC
+    PORTB |=  B00100000; //set pin13 back to HIGH for timemeasurement
+    Serial.print("PCC:\t" + String(pccPower) + "\t" + String(oc_value) + "\n");
+#endif // DEBUG_PCC
 
 }
 
@@ -135,7 +177,7 @@ bool PhaseCutCtrl::netIsAllive()
 
 unsigned int PhaseCutCtrl::getNetFrequency()
 // measures micros of 100 zero interrupt and calculates then
-// the average netFrequency in centiHz (100 --> 1Hz ) 
+// the average netFrequency in centiHz (100 --> 1Hz )
 // prescaler of timer1 is 8, cpu works on 16MHz
 {
     unsigned int result;
@@ -151,7 +193,7 @@ unsigned int PhaseCutCtrl::getNetFrequency()
         }
         else
         {
-            result = hz_factor / diff; 
+            result = hz_factor / diff;
 
         }
 
