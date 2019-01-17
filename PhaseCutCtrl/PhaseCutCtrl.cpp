@@ -1,7 +1,7 @@
 #include "PhaseCutCtrl.h"
 #include "Arduino.h"
 
-#define DEBUG_PCC 1
+//#define DEBUG_PCC 1
 
 #define SAMPLES_AMOUNT 20
 #define MAX_POWER 2048
@@ -42,23 +42,10 @@ int xPartMask = (1 << 8) -1;
 
 int mapFunction(int x)
 {
-#ifdef DEBUG_PCC
-    PORTB &= ~B00100000; //set pin13 to LOW for timemeasurement
-#endif // DEBUG_PCC
     byte segment = x >> 8;
     int x_part = x & xPartMask;
     int delta = ((long)delta_array[segment] * x_part)  >> 10;
     int y = point_array[segment] - delta;
-
-#ifdef DEBUG_PCC
-    PORTB |=  B00100000; //set pin13 back to HIGH for timemeasurement
-    Serial.print("PCC:\t" + String(x)
-        +"\t"+ String(segment)
-        +"\t"+ String(x_part)
-        +"\t"+ String(delta)
-        +"\t" + String(y) + "\n");
-#endif // DEBUG_PCC
-
     return y;
 }
 
