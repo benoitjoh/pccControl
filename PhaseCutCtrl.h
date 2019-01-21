@@ -64,6 +64,7 @@ class PhaseCutCtrl
         bool pcc_is_on;
         byte signal_pin;
         byte output_pin;
+        int pcc_power_last;
 
         // variables for frequencymeasurement
         unsigned long netFreqMicros;

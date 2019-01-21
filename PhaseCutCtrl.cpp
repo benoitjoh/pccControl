@@ -3,7 +3,7 @@
 
 //#define DEBUG_PCC 1
 
-#define SAMPLES_AMOUNT 20
+#define SAMPLES_AMOUNT 50
 #define MAX_POWER 2048
 
 
@@ -60,6 +60,7 @@ void PhaseCutCtrl::initialize(byte signal_pin, byte output_pin)
     this->signal_pin = signal_pin;
     hz_factor = 50000000 * SAMPLES_AMOUNT;
     netFreqCnt = 0;
+    pcc_power_last = 0;
 
     noInterrupts();
     pinMode(signal_pin, INPUT);
@@ -90,8 +91,8 @@ void PhaseCutCtrl::isrZeroCallback()
     // OCR1A is reached.
     TCNT1 = 0;
     lastAcZeroMillis = millis();
-    //optional code if measurement of net frequency is activated (costs 8 or 12 mySecs)
 
+    //code for measurement of net frequency (costs 5 mySecs)
 	if (++netFreqCnt == SAMPLES_AMOUNT)
 	{
 	//Serial.println(netFreqCnt);
@@ -100,7 +101,6 @@ void PhaseCutCtrl::isrZeroCallback()
 		netFreqMicrosOld = netFreqMicros;
 		netFreqMicros = micros();
 	}
-
 }
 
 void PhaseCutCtrl::isrOciCallback()
@@ -114,11 +114,11 @@ void PhaseCutCtrl::isrOciCallback()
 
 }
 
-void PhaseCutCtrl::set_pcc(int pccPower)
+void PhaseCutCtrl::set_pcc(int pcc_power)
 {
     // this calculates  and sets the delta for OCR1A register from timer interrupt
 
-    if (pccPower == 0)
+    if (pcc_power == 0)
     {
         // switched off
         pcc_is_on = false;
@@ -126,32 +126,36 @@ void PhaseCutCtrl::set_pcc(int pccPower)
     }
     else
     {
-        if (pccPower == MAX_POWER)
+        if (pcc_power != pcc_power_last)
         {
-            // swiched on to 100% so no interrupt control but straight on
-            pcc_is_on = false;
-            digitalWrite(output_pin, HIGH); // pin permanently HIGH
-        }
-        else
-        {
-            // Let the speed be controlled by the interrupt methods
-            pcc_is_on = true;
+            if (pcc_power == MAX_POWER)
+            {
+                // swiched on to 100% so no interrupt control but straight on
+                pcc_is_on = false;
+                digitalWrite(output_pin, HIGH); // pin permanently HIGH
+            }
+            else
+            {
+                // Let the speed be controlled by the interrupt methods
+                pcc_is_on = true;
+    #ifdef DEBUG_PCC
+                PORTB |=  B00100000; //set pin13 back to HIGH for timemeasurement
+    #endif // DEBUG_PCC
 
+                // set the Output Compare Register 1 A
+                int oc_value = mapFunction(pcc_power);
+                OCR1A = oc_value;
+
+    #ifdef DEBUG_PCC
+                PORTB &= ~B00100000; //set pin13 to LOW for timemeasurement
+                Serial.print("PCC:\t" + String(pcc_Power) + "\t" + String(oc_value) + "\n");
+    #endif // DEBUG_PCC
+
+            }
         }
     }
+    pcc_power_last = pcc_power;
 
-#ifdef DEBUG_PCC
-    PORTB &= ~B00100000; //set pin13 to LOW for timemeasurement
-#endif // DEBUG_PCC
-
-    // set the Output Compare Register 1 A
-    int oc_value = mapFunction(pccPower);
-    OCR1A = oc_value;
-
-#ifdef DEBUG_PCC
-    PORTB |=  B00100000; //set pin13 back to HIGH for timemeasurement
-    Serial.print("PCC:\t" + String(pccPower) + "\t" + String(oc_value) + "\n");
-#endif // DEBUG_PCC
 
 }
 
