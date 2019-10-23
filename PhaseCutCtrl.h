@@ -54,10 +54,11 @@ class PhaseCutCtrl
         void initialize(byte signal_pin, byte output_pin);
         void set_pcc(int power);
         unsigned int getNetFrequency();
-        bool netIsAllive();
+        bool acNetIsAlive();
+        void waitUntilAcZero();
 
-        void isrZeroCallback();
-        void isrOciCallback();
+        void isr_AcZeroCallback();
+        void isr_OciCallback();
 
      private:
        // parameters
@@ -74,6 +75,8 @@ class PhaseCutCtrl
         long hz_factor;
         int netFreqCnt;
         int netFreqCntLast;
+
+        bool zero_pass_flag;
 
     protected:
 

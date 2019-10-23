@@ -5,7 +5,6 @@ this script generates a mapping function in c++
 import matplotlib.pyplot as plt
 import numpy as np
 import time
-import re
 
 def getTimestamp():
     return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))

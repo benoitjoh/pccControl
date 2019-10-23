@@ -9,17 +9,19 @@
 
 PhaseCutCtrl PCCtrl; // pre-instatiate the class here
 
-void ISR_acIsZero()
+// define the interupt routines and redirect them to member methods
+
+void ISR_acIsAcZero()
 {
     // method for attached external interrupt for the zero phase signal
-    PCCtrl.isrZeroCallback();
+    PCCtrl.isr_AcZeroCallback();
 }
 
 
 ISR(TIMER1_COMPA_vect)
 {
 	// this is the prepared interrupt method for the OCR1
-    PCCtrl.isrOciCallback();
+    PCCtrl.isr_OciCallback();
 }
 
 // Mapping function (costs about 8 mySeconds)
@@ -64,11 +66,12 @@ void PhaseCutCtrl::initialize(byte signal_pin, byte output_pin)
 
     noInterrupts();
     pinMode(signal_pin, INPUT);
-    attachInterrupt(digitalPinToInterrupt(signal_pin), ISR_acIsZero, RISING);
+    attachInterrupt(digitalPinToInterrupt(signal_pin), ISR_acIsAcZero, RISING);
 
     pinMode(output_pin, OUTPUT);
 
     pcc_is_on = false;
+    zero_pass_flag = false;
 
     // set up timer interrupt for Timer1
     TCCR1A = 0;
@@ -85,12 +88,15 @@ void PhaseCutCtrl::initialize(byte signal_pin, byte output_pin)
 
 }
 
-void PhaseCutCtrl::isrZeroCallback()
+void PhaseCutCtrl::isr_AcZeroCallback()
 {
     // at zero phase _always_ reset timercounter. Other function waits till
     // OCR1A is reached.
     TCNT1 = 0;
     lastAcZeroMillis = millis();
+
+    // this ist the flag for waitTillZero method.
+    zero_pass_flag = true;
 
     //code for measurement of net frequency (costs 5 mySecs)
 	if (++netFreqCnt == SAMPLES_AMOUNT)
@@ -103,7 +109,7 @@ void PhaseCutCtrl::isrZeroCallback()
 	}
 }
 
-void PhaseCutCtrl::isrOciCallback()
+void PhaseCutCtrl::isr_OciCallback()
 {
     // fires the pcm output pin if the OCR1A delay after phase zero is reached
     if (pcc_is_on)
@@ -111,8 +117,20 @@ void PhaseCutCtrl::isrOciCallback()
         digitalWrite(output_pin, 1); // pin on
         digitalWrite(output_pin, 0); // pin off
     }
-
 }
+
+
+void PhaseCutCtrl::waitUntilAcZero()
+// waits in a loop until the AC has passed the zero value. this method can be
+// used to switch AC load with relais in the moment of solid state.
+{
+    zero_pass_flag = false;
+    while(zero_pass_flag = false)
+    {
+        // jump out if flag is true...
+    }
+}
+
 
 void PhaseCutCtrl::set_pcc(int pcc_power)
 {
@@ -159,7 +177,8 @@ void PhaseCutCtrl::set_pcc(int pcc_power)
 
 }
 
-bool PhaseCutCtrl::netIsAllive()
+
+bool PhaseCutCtrl::acNetIsAlive()
 // return false if the last acZero event passed longer than 300ms
 {
     return (millis() - lastAcZeroMillis < 300);

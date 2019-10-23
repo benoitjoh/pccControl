@@ -1,7 +1,8 @@
 PCCtrl	KEYWORD1
 initialize	KEYWORD2
-set_pcc	KEYWORD2
+set_pcc		KEYWORD2
 getNetFrequency KEYWORD2
-isrZeroCallback	KEYWORD2
-isrOciCallback	KEYWORD2
-
+isr_AcZeroCallback	KEYWORD2
+isr_OciCallback	KEYWORD2
+acNetIsAlive	KEYWORD2
+waitUntilAcZero	KEYWORD2
