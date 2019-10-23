@@ -66,6 +66,22 @@ void setup()
 
 To set the power value, call set_pcc(power). run it as seldom as possible to reduce timeconsumption for the float calculations.
 In the example, a function returns true, when it changed the targetpower:
+
+```c++
+//  use something like
+
+if (someFunctionThatDefinespower())
+{
+    PCCtrl.set_pcc(power);
+}
+
+```
+## Use the waitUntilAcZero() method for relais
+
+This Method waits in a loop until the AC curve hits the x axis at zero Volt.
+In exactly that moment you can switch power relais and you have a solid state relais :-)
+
+
 ```c++
 //  use a wrapper like this to swap the pin that conects to the relais
 
@@ -75,21 +91,6 @@ void digitalWriteAtSolidState(byte mypin, byte myvalue)
     digitalWrite(mypin, myvalue);
 }
 
-
-```
-
-## Use the waitUntilAcZero() method
-
-This Method waits in a loop until the AC curve hits the x axis at zero Volt.
-In exactly that moment you can switch power relais and you have a solid state relais :-)
-
-```c++
-//  use something like
-
-if (someFunctionThatDefinespower())
-{
-    PCCtrl.set_pcc(power);
-}
 
 ```
 
