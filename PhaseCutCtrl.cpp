@@ -3,7 +3,6 @@
 
 //#define DEBUG_PCC 1
 
-#define SAMPLES_AMOUNT 50
 #define MAX_POWER 2048
 
 
@@ -60,8 +59,6 @@ void PhaseCutCtrl::initialize(byte signal_pin, byte output_pin)
 {
     this->output_pin = output_pin;
     this->signal_pin = signal_pin;
-    hz_factor = 50000000 * SAMPLES_AMOUNT;
-    netFreqCnt = 0;
     pcc_power_last = 0;
 
     noInterrupts();
@@ -71,7 +68,6 @@ void PhaseCutCtrl::initialize(byte signal_pin, byte output_pin)
     pinMode(output_pin, OUTPUT);
 
     pcc_is_on = false;
-    zero_pass_flag = false;
 
     // set up timer interrupt for Timer1
     TCCR1A = 0;
@@ -82,6 +78,9 @@ void PhaseCutCtrl::initialize(byte signal_pin, byte output_pin)
 
     interrupts();             // activate all interrupts
     OCR1A = 0;
+
+    samples_counter = 0;
+    tcnt1_aggregate = 0;
 #ifdef DEBUG_PCC
     pinMode(13, OUTPUT); // can use pin 13 for timing mesurement with an osziloscope
 #endif // DEBUG_SPEEDCONTROL
@@ -92,21 +91,25 @@ void PhaseCutCtrl::isr_AcZeroCallback()
 {
     // at zero phase _always_ reset timercounter. Other function waits till
     // OCR1A is reached.
+
+    // save counter for solid state controller and measurement of net frequency
+    tcnt1_per_event = TCNT1;
+
+    // reset counter
     TCNT1 = 0;
+
+
+    tcnt1_aggregate += tcnt1_per_event;
     lastAcZeroMillis = millis();
 
-    // this ist the flag for waitTillZero method.
-    zero_pass_flag = true;
+    if (++samples_counter == 100)
+    {
+         samples_counter = 0;
+         tcnt1_per_100 = tcnt1_aggregate;
+         tcnt1_aggregate = 0;
+    }
 
-    //code for measurement of net frequency (costs 5 mySecs)
-	if (++netFreqCnt == SAMPLES_AMOUNT)
-	{
-	//Serial.println(netFreqCnt);
-		netFreqCntLast = netFreqCnt;
-		netFreqCnt = 0;
-		netFreqMicrosOld = netFreqMicros;
-		netFreqMicros = micros();
-	}
+
 }
 
 void PhaseCutCtrl::isr_OciCallback()
@@ -120,15 +123,24 @@ void PhaseCutCtrl::isr_OciCallback()
 }
 
 
-void PhaseCutCtrl::waitUntilAcZero()
+void PhaseCutCtrl::waitUntilAcZero(void)
 // waits in a loop until the AC has passed the zero value. this method can be
 // used to switch AC load with relais in the moment of solid state.
+
 {
-    zero_pass_flag = false;
-    while(zero_pass_flag = false)
+    int limit = 19000;//tcnt1_per_event;  //(tcnt1_per_100 / 100) - 900;
+
+    while(true)
     {
-        // jump out if flag is true...
+         if (TCNT1 > limit)
+         {
+             PORTB |=  B00001000; //set pin11 back to HIGH for timemeasurement
+             PORTB &= ~B00001000; //set pin11 to LOW for timemeasurement
+             return;
+         }
+
     }
+
 }
 
 
@@ -191,27 +203,7 @@ unsigned int PhaseCutCtrl::getNetFrequency()
 // prescaler of timer1 is 8, cpu works on 16MHz
 {
     unsigned int result;
-
-    if (millis() - lastAcZeroMillis < 100)
-    // if the last call of acZero event was more than 100ms past, return a 0.0!
-    {
-        unsigned long diff = netFreqMicros - netFreqMicrosOld; // 8mySec
-
-        if (diff == 0)
-        {
-            result = 0;
-        }
-        else
-        {
-            result = hz_factor / diff;
-
-        }
-
-    }
-    else
-    {
-        result =  0;
-    }
+    result =  tcnt1_per_100 / 400;
     return result;
 
 }

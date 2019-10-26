@@ -55,7 +55,7 @@ class PhaseCutCtrl
         void set_pcc(int power);
         unsigned int getNetFrequency();
         bool acNetIsAlive();
-        void waitUntilAcZero();
+        void waitUntilAcZero(void);
 
         void isr_AcZeroCallback();
         void isr_OciCallback();
@@ -67,17 +67,16 @@ class PhaseCutCtrl
         byte output_pin;
         int pcc_power_last;
 
-        // variables for frequencymeasurement
-        unsigned long netFreqMicros;
-        unsigned long netFreqMicrosOld;
+        // cyclecount between two events
+        int tcnt1_per_event;
+
+        // determine cycles between 100 events
+        unsigned long tcnt1_aggregate;
+        unsigned long tcnt1_per_100;
+        byte samples_counter;
+
+        // for netAlive watch
         unsigned long lastAcZeroMillis;
-
-        long hz_factor;
-        int netFreqCnt;
-        int netFreqCntLast;
-
-        bool zero_pass_flag;
-
     protected:
 
 
