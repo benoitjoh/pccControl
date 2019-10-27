@@ -55,7 +55,7 @@ class PhaseCutCtrl
         void set_pcc(int power);
         unsigned int getNetFrequency();
         bool acNetIsAlive();
-        void waitUntilAcZero(void);
+        void waitUntilAcZero(int offsetMys);
 
         void isr_AcZeroCallback();
         void isr_OciCallback();
@@ -74,6 +74,7 @@ class PhaseCutCtrl
         unsigned long tcnt1_aggregate;
         unsigned long tcnt1_per_100;
         byte samples_counter;
+
 
         // for netAlive watch
         unsigned long lastAcZeroMillis;

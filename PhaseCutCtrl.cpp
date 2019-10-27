@@ -91,10 +91,11 @@ void PhaseCutCtrl::isr_AcZeroCallback()
 {
     // at zero phase _always_ reset timercounter. Other function waits till
     // OCR1A is reached.
+	// function costs 4 mySec, with ifstatement: 6mySec.
 
     // save counter for solid state controller and measurement of net frequency
     tcnt1_per_event = TCNT1;
-
+    
     // reset counter
     TCNT1 = 0;
 
@@ -102,13 +103,13 @@ void PhaseCutCtrl::isr_AcZeroCallback()
     tcnt1_aggregate += tcnt1_per_event;
     lastAcZeroMillis = millis();
 
+
     if (++samples_counter == 100)
     {
          samples_counter = 0;
          tcnt1_per_100 = tcnt1_aggregate;
          tcnt1_aggregate = 0;
     }
-
 
 }
 
@@ -123,19 +124,19 @@ void PhaseCutCtrl::isr_OciCallback()
 }
 
 
-void PhaseCutCtrl::waitUntilAcZero(void)
+void PhaseCutCtrl::waitUntilAcZero(int offsetMys)
 // waits in a loop until the AC has passed the zero value. this method can be
 // used to switch AC load with relais in the moment of solid state.
+// offsetMys: fire xx mycroseconds before solid state
 
 {
-    int limit = 19000;//tcnt1_per_event;  //(tcnt1_per_100 / 100) - 900;
+    int limit = int(tcnt1_per_100 / 100) - (offsetMys * 2) - 1000;
+    int upperLimit = limit + 100;
 
     while(true)
     {
-         if (TCNT1 > limit)
+         if ((TCNT1 > limit) and (TCNT1 < upperLimit))
          {
-             PORTB |=  B00001000; //set pin11 back to HIGH for timemeasurement
-             PORTB &= ~B00001000; //set pin11 to LOW for timemeasurement
              return;
          }
 
