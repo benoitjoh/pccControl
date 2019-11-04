@@ -53,7 +53,7 @@ class PhaseCutCtrl
         // methods
         void initialize(byte signal_pin, byte output_pin);
         void set_pcc(int power);
-        unsigned int getNetFrequency();
+        int getNetFrequency();
         bool acNetIsAlive();
         void waitUntilAcZero(int offsetMys);
 
@@ -68,13 +68,13 @@ class PhaseCutCtrl
         int pcc_power_last;
 
         // cyclecount between two events
-        int tcnt1_per_event;
+        int tcnt1_last_event;
 
         // determine cycles between 100 events
+         byte samples_counter;
         unsigned long tcnt1_aggregate;
-        unsigned long tcnt1_per_100;
-        byte samples_counter;
-
+        int tcnt1_average;
+        int tcnt1_noise_limit;
 
         // for netAlive watch
         unsigned long lastAcZeroMillis;

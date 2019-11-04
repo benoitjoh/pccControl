@@ -5,6 +5,8 @@
 
 #define MAX_POWER 2048
 
+#define AGGREGATE_COUNT 255 //  use 2^8, because a >>8 is a very fast operation
+#define TCNT1_NOISE_OFFSET 200
 
 PhaseCutCtrl PCCtrl; // pre-instatiate the class here
 
@@ -80,7 +82,8 @@ void PhaseCutCtrl::initialize(byte signal_pin, byte output_pin)
     OCR1A = 0;
 
     samples_counter = 0;
-    tcnt1_aggregate = 0;
+    tcnt1_average = 20000; // assuming 50Hz
+    tcnt1_noise_limit = tcnt1_average - TCNT1_NOISE_OFFSET;
 #ifdef DEBUG_PCC
     pinMode(13, OUTPUT); // can use pin 13 for timing mesurement with an osziloscope
 #endif // DEBUG_SPEEDCONTROL
@@ -94,22 +97,35 @@ void PhaseCutCtrl::isr_AcZeroCallback()
 	// function costs 4 mySec, with ifstatement: 6mySec.
 
     // save counter for solid state controller and measurement of net frequency
-    tcnt1_per_event = TCNT1;
-    
+
+
+    if (TCNT1 < tcnt1_noise_limit)
+    {
+        // ignore all events that are much earlier then the expected event.
+        // those are probably initiated by noise on the input wire
+        return;
+    }
+
+    tcnt1_last_event = TCNT1;
+
     // reset counter
     TCNT1 = 0;
 
+    PORTB |=  B00100000; //set pin13 back to HIGH for timemeasurement
 
-    tcnt1_aggregate += tcnt1_per_event;
-    lastAcZeroMillis = millis();
+    tcnt1_aggregate += tcnt1_last_event;
+    lastAcZeroMillis = millis(); // for acNetIsAlive()
 
 
-    if (++samples_counter == 100)
+    if (samples_counter++ == AGGREGATE_COUNT)
     {
          samples_counter = 0;
-         tcnt1_per_100 = tcnt1_aggregate;
+         tcnt1_average = int(tcnt1_aggregate >> 8); // divide by 256
+         tcnt1_noise_limit = tcnt1_average - TCNT1_NOISE_OFFSET;
          tcnt1_aggregate = 0;
     }
+
+    PORTB &= ~B00100000; //set pin13 to LOW for timemeasurement
 
 }
 
@@ -130,12 +146,12 @@ void PhaseCutCtrl::waitUntilAcZero(int offsetMys)
 // offsetMys: fire xx mycroseconds before solid state
 
 {
-    int limit = int(tcnt1_per_100 / 100) - (offsetMys * 2) - 1000;
-    int upperLimit = limit + 100;
+    int lowerLimit = tcnt1_average - (offsetMys * 2) - 1000;
+    int upperLimit = lowerLimit + 100;
 
     while(true)
     {
-         if ((TCNT1 > limit) and (TCNT1 < upperLimit))
+         if ((TCNT1 > lowerLimit) and (TCNT1 < upperLimit))
          {
              return;
          }
@@ -198,14 +214,12 @@ bool PhaseCutCtrl::acNetIsAlive()
 
 }
 
-unsigned int PhaseCutCtrl::getNetFrequency()
+int PhaseCutCtrl::getNetFrequency()
 // measures micros of 100 zero interrupt and calculates then
 // the average netFrequency in centiHz (100 --> 1Hz )
 // prescaler of timer1 is 8, cpu works on 16MHz
 {
-    unsigned int result;
-    result =  tcnt1_per_100 / 400;
-    return result;
+    return int(100000000 / tcnt1_average);
 
 }
 
