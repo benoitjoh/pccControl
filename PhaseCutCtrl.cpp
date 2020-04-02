@@ -111,7 +111,9 @@ void PhaseCutCtrl::isr_AcZeroCallback()
     // reset counter
     TCNT1 = 0;
 
+#ifdef DEBUG_PCC
     PORTB |=  B00100000; //set pin13 back to HIGH for timemeasurement
+#endif // DEBUG_SPEEDCONTROL
 
     tcnt1_aggregate += tcnt1_last_event;
     lastAcZeroMillis = millis(); // for acNetIsAlive()
@@ -125,7 +127,9 @@ void PhaseCutCtrl::isr_AcZeroCallback()
          tcnt1_aggregate = 0;
     }
 
+#ifdef DEBUG_PCC
     PORTB &= ~B00100000; //set pin13 to LOW for timemeasurement
+#endif // DEBUG_SPEEDCONTROL
 
 }
 
