@@ -49,14 +49,13 @@ The last Parameter PCC_POWER_MAX ist typically 999 so you have 1000 steps, but c
 #include <PhaseCutCtrl.h>
 #define PIN_IN_ACZERO_SIGNAL   3  // pin for AC zeropoint detection (Interrupt source, so can only be 2 or 3)
 #define PIN_PCC_OUT_A          4  // pin for pulse cut modulation output
-#define PCC_POWER_MAX 999  // this int represents 100% power (0 means 0%)
 
 // NOTE: the class is preinstanciated as PCCtrl.
 
 void setup()
 {
     // Phase cut Ctrl module
-    PCCtrl.initialize(PIN_IN_ACZERO_SIGNAL, PIN_PCC_OUT_A, PCC_POWER_MAX);
+    PCCtrl.initialize(PIN_IN_ACZERO_SIGNAL, PIN_PCC_OUT_A);
 }
 
 
@@ -66,6 +65,8 @@ void setup()
 
 To set the power value, call set_pcc(power). run it as seldom as possible to reduce timeconsumption for the float calculations.
 In the example, a function returns true, when it changed the targetpower:
+
+The value of power is between 0 (off) and 2048 (max).
 
 ```c++
 //  use something like
@@ -79,7 +80,10 @@ if (someFunctionThatDefinespower())
 ## Use the waitUntilAcZero() method for relais
 
 This Method waits in a loop until the AC curve hits the x axis at zero Volt.
-In exactly that moment you can switch power relais and you have a solid state relais :-)
+
+In exactly that moment you can switch a triac and you have a solid state relais :-)
+
+If you use a mechanical relais, you have to consider the delay of the switch. 
 
 
 ```c++
@@ -87,25 +91,32 @@ In exactly that moment you can switch power relais and you have a solid state re
 
 void digitalWriteAtSolidState(byte mypin, byte myvalue)
 {
-    PCCtrl.waitUntilAcZero();
+    PCCtrl.waitUntilAcZero(TIME_DELAY_RELAIS_MICROS);
     digitalWrite(mypin, myvalue);
 }
 
-
 ```
+the value of myDelay depends of lazyness of the mechanical component. the function waits a bit, then fires and the switch will open/close in the next zero Volt phase. (for a triac it is 0, my small standard 12V relais has 11000 mySecs)
 
 
 ## Net Frequency Measurement
+(It needs about 1k program memory extra.)
 
 calling
-
 ```c++
 float PCCtlr.getNetFreq()
 ```
-
 calculates the time for one event and returns transfored to Hertz.
-If the interupt is never called (e.g. if there is no AC supply, 0.0 is returned)
-(It needs about 1k program memory extra.)
+
+
+With 
+```c++
+float PCCtlr.acNetIsAlive()
+```
+You can detect if the system is seperated from AC supply. If no alternating current is on for 300ms the function returns false.
+A good moment to quickly store some data in eeprom before the controller stops working... 
+
+
 
 (c) [Johannes Benoit 2018](mailto:jbenoit@t-online.de)
 
