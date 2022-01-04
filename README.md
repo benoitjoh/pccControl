@@ -42,8 +42,6 @@ Now, depending from the power value, a delay is calculated and set to outputComp
 The class is per initialized in the cpp file during compilation. This is neccessary because the interrupt method needs to know which method of the class it must call.
 So the initializt() method has to be called in setup() to pass parameters.
 
-The last Parameter PCC_POWER_MAX ist typically 999 so you have 1000 steps, but can be any value you like. 
-
 
 ```c++
 #include <PhaseCutCtrl.h>
